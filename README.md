@@ -4,13 +4,13 @@ Here we give simple examples that train ResNet50 models with either Imagenet/Ima
 
 ## PyTorch
 
-Here we show an example of running PyTorch `DistributedDataParallel` framework in [PyTorch](Pytorch) section. 
+Here we show an example of running PyTorch `DistributedDataParallel` framework in [PyTorch](Pytorch/) section. 
 A slurm script is included to show how to set up the environment and structure the slurm script for running on Bridges-2 GPU nodes.
 
 ## Tensorflow
-Here we show an example of running Tensorflow `tf.distributed.MirroredStrategy` framework in [Tensorflow](Tensorflow) section. 
+Here we show an example of running Tensorflow `tf.distributed.MirroredStrategy` framework in [Tensorflow](Tensorflow/) section. 
 A slurm script is included to show how to set up the environment and structure the slurm script  for running on Bridges-2 GPU nodes.
 
 ## Horovod
-Here we show an example of running Horovod with Tensorflow in [Horovod](Horovod) section. 
+Here we show an example of running Horovod with Tensorflow in [Horovod](Horovod/) section. 
 A slurm script is included to show how to set up the environment and structure the slurm script  for running on Bridges-2 GPU nodes.
