@@ -12,5 +12,5 @@ Here we show an example of running Tensorflow `tf.distributed.MirroredStrategy` 
 A slurm script is included to show how to set up the environment and structure the slurm script  for running on Bridges-2 GPU nodes.
 
 ## Horovod
-Here we show an example of running Horovod with Tensorflow in [Horovod](#horovod) section. 
+Here we show an example of running Horovod with Tensorflow in [Horovod](Horovod/README.md) section. 
 A slurm script is included to show how to set up the environment and structure the slurm script  for running on Bridges-2 GPU nodes.
