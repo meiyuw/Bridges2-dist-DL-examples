@@ -7,8 +7,10 @@
 
 set -x
 
-singularity exec --nv /ocean/containers/ngc/pytorch/pytorch_latest.sif torchrun --nnodes=1 --nproc_per_nod=4 pytorch_ddp.py --nw 10 --bz 64 --image_size 128 --mp True
+cd /ocean/projects/groupname/username/path-to-directory
+
+singularity exec --nv /ocean/containers/ngc/pytorch/pytorch_latest.sif torchrun --nnodes=1 --nproc_per_nod=4 pytorch_ddp.py
 
 #Run with AI module enviroment
 #module load AI/pytorch_23.02-1.13.1-py3 
-#torchrun --nnodes=1 --nproc_per_nod=4 pytorch_ddp.py --nw 10 --bz 64 --image_size 128 --mp True
+#torchrun --nnodes=1 --nproc_per_nod=4 pytorch_ddp.py

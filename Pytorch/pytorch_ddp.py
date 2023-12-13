@@ -4,6 +4,7 @@ import torchvision.transforms as transforms
 import torch.distributed as dist
 from torchvision.models import resnet50#, ResNet50_Weights
 from torch.nn.parallel import DistributedDataParallel as DDP
+from torch.utils.data.distributed import DistributedSampler
 from tqdm import tqdm
 import time
 
@@ -14,24 +15,26 @@ rank = dist.get_rank()
 print(f"Start running basic DDP example on rank {rank}.\n")
 
 parser = argparse.ArgumentParser(description='Input values.')
-parser.add_argument('--nw', type=int, default=5, help='number of workers in dataloader')
-parser.add_argument('--bz', type=int, default=128, help='batch size')
-parser.add_argument('--image_size', type=int, default=128, help='image size')
-parser.add_argument('--mp', default=False, help='Mixed Precision Training')
-parser.add_argument('--num_epochs', type=int, default=5, help='Number of training epochs')
+parser.add_argument('-nw', type=int, default=10, help='Number of workers in dataloader')
+parser.add_argument('-bz', type=int, default=128, help='Batch size per replica')
+parser.add_argument('-image_size', type=int, default=128, help='Image size (number of pixels per size)')
+parser.add_argument('-epoch_num', type=int, default=5, help='Number of training epochs')
+parser.add_argument('-mp', action='store_true', help='Mixed precision training')
+parser.add_argument('-imagenet', action='store_true', help='Using Imagenet dataset')
 
 args = parser.parse_args()
 batch_size = args.bz
 n_workers = args.nw
 image_size = args.image_size
 mixed_precision = args.mp
-num_epochs = args.num_epochs
+using_imagenet = args.imagenet
+epoch_num = args.epoch_num
 if rank == 0:
-    print('n_workers=',n_workers)
-    print('batch size=',batch_size)
-    print('image size=',image_size)
-    print('Mixed precision training: ',mixed_precision)
-    print('number of GPUs:',torch.cuda.device_count())
+    print('Number of workers=',n_workers)
+    print('Batch size=',batch_size)
+    print('Image size=',image_size)
+    print('Mixed precision training=',mixed_precision)
+    print('Number of GPUs=',torch.cuda.device_count())
 device = torch.device('cuda' if torch.cuda.is_available() else "cpu")
 
 # Set hyperparameters
@@ -43,12 +46,16 @@ transform = transforms.Compose([
     transforms.ToTensor(),
 ])
 
-# Load the ImageNet Object Localization Challenge dataset
-train_dataset = torchvision.datasets.ImageFolder(
-    root='/direcotry/to/imagenet-mini/train',
-    transform=transform
-)
-train_sampler = DistributedSampler(dataset=train_dataset, shuffle=True)
+# Load the ImageNet dataset or create dummy data
+if using_imagenet == True: 
+    train_dataset = torchvision.datasets.ImageFolder(
+        root='/direcotry/to/imagenet-mini/train',
+        transform=transform
+    )
+else:
+    train_dataset = torchvision.datasets.FakeData(2000, (3, image_size, image_size), 1000, transforms.ToTensor())
+    
+train_sampler = DistributedSampler(dataset=train_dataset, num_replicas=torch.cuda.device_count(), rank=rank,shuffle=True)
 train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, num_workers=n_workers,pin_memory=True,sampler=train_sampler)
 
 # Load the ResNet50 model
@@ -66,7 +73,7 @@ criterion = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(ddp_model.parameters(), lr=learning_rate)
 
 # Train the model...
-for epoch in range(num_epochs):
+for epoch in range(epoch_num):
     train_loader.sampler.set_epoch(epoch)
     for i, data in enumerate(tqdm(train_loader)):
         # Move input and label tensors to the device
@@ -96,7 +103,7 @@ for epoch in range(num_epochs):
             optimizer.step()
 
     # Print the loss for every epoch
-    print(f'Epoch {epoch+1}/{num_epochs}, Loss: {loss.item():.4f})
+    print(f'Epoch {epoch+1}/{epoch_num}, Loss: {loss.item():.4f}')
 
 
 dist.destroy_process_group()
