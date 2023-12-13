@@ -11,7 +11,7 @@ For Imagenet, you can access the dataset on Bridges-2 on `/ocean/datasets/commun
 
 For Imagenet-mini, it can be download from this [website](https://www.kaggle.com/datasets/ifigotin/imagenetmini-1000).
 
-If the flag `-imagenet` is not set (default), it will generate mock images with random pixels. 
+If the flag `-imagenet` is not set (default), it will generate dummy images with random pixels. 
 
 ## Usage
 ```bash
@@ -23,11 +23,11 @@ Usage: tensorflow_dist.py [-h] [-bz BATCH_SIZE]
 
 
 Optional arguments:
-  -bz BATCH_SIZE           Sepcify the data batch size (default: 128).
+  -bz BATCH_SIZE           Sepcify the data batch size per replica (default: 128).
   -image_size IMAGE_SIZE   Resize the image size to be IMAGE_SIZE x IMAGE_SIZE  (default: 128).
   -epoch_num EPOCH_NUM     Number of training epochs (default: 5).
   -mp                      Enable mixed precision training or not (default: False).
-  -imagenet                Using Imagenet dataset for train or mock data generated with random pixels (default: False). 
+  -imagenet                Using Imagenet dataset for train or dummy data generated with random pixels (default: False). 
                 
 ```
 
@@ -37,14 +37,14 @@ Here we give example commands of running this example with 4 GPUs (node type not
 #### With `singularity exec`
 ```bash
 interact --partition GPU-shared --gres=gpu:v100:4
-singularity exec --nv /ocean/containers/ngc/tensorflow/tensorflow_latest.sif python tensorflow_dist.py
+singularity exec --nv /ocean/containers/ngc/tensorflow/tensorflow_latest.sif python3 tensorflow_dist.py
 ```
 
 #### With `singularity shell`
 ```bash
 interact --partition GPU-shared --gres=gpu:v100:4
 singularity shell --nv /ocean/containers/ngc/tensorflow/tensorflow_latest.sif
-python tensorflow_dist.py
+python3 tensorflow_dist.py
 ```
 
 #### With AI module
